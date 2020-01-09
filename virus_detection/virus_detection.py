@@ -1,0 +1,16 @@
+import binarylib as bl   
+image,width,height,depth = bl.read_pgm('virus.pgm')
+image = bl.clahe(image,1.05)
+bl.output_image(image.astype(int),'P2',255,'clahe.pgm')
+binary = bl.to_binary(image,bl.isoData(image))
+bl.output_image(binary,'P2',1,'sharp1.pgm')        
+d = bl.dilation(binary,bl.disk_kernel(4))
+bl.output_image(d,'P2',1,'dilation.pgm') 
+close = bl.erosion(d,bl.disk_kernel(4)) 
+bl.output_image(close,'P2',1,'close.pgm')
+
+contour_map = bl.contour(1-close)
+minima,upper_bound_count = bl.minima_map(contour_map,6)
+bl.output_image(minima,'P3',255,'minima1.ppm')
+bl.watershed(contour_map.astype(int),minima)
+bl.output_image(minima,'P3',255,'minima.ppm')
